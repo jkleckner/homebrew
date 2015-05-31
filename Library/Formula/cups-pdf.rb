@@ -40,7 +40,7 @@ end
 
 __END__
 diff --git a/extra/cups-pdf.conf b/extra/cups-pdf.conf
-index cfb4b78..cc8410d 100644
+index 79a3769..2ec640d 100644
 --- a/extra/cups-pdf.conf
 +++ b/extra/cups-pdf.conf
 @@ -40,7 +40,7 @@
@@ -61,8 +61,8 @@ index cfb4b78..cc8410d 100644
  
  ### Key: Label
  ##  label all jobs with a unique job-id in order to avoid overwriting old
-@@ -91,7 +91,7 @@
- ##  0: label untitled documents only, 1: label all documents
+@@ -93,7 +93,7 @@
+ ##  2: label all documents with a tailing "-job_#"
  ### Default: 0
  
 -#Label 0
@@ -70,7 +70,7 @@ index cfb4b78..cc8410d 100644
  
  ### Key: TitlePref
  ##  where to look first for a title when creating the output filename
-@@ -180,7 +180,7 @@
+@@ -182,7 +182,7 @@
  ##  created directories and log files
  ### Default: lp
  
@@ -79,7 +79,7 @@ index cfb4b78..cc8410d 100644
  
  
  ###########################################################################
-@@ -220,28 +220,28 @@
+@@ -222,28 +222,28 @@
  ##          or its proper location on your system
  ### Default: /usr/bin/gs
  
@@ -112,3 +112,25 @@ index cfb4b78..cc8410d 100644
  
  ### Key: PostProcessing
  ##  postprocessing script that will be called after the creation of the PDF
+diff --git a/src/cups-pdf.c b/src/cups-pdf.c
+index 943e1f0..6d48eb9 100644
+--- a/src/cups-pdf.c
++++ b/src/cups-pdf.c
+@@ -591,13 +591,15 @@ int main(int argc, char *argv[]) {
+     return 0;
+   }
+ 
+-  size=strlen(conf.userprefix)+strlen(argv[2])+1;
++  // Implementing patch documented here:
++  //  https://bitbucket.org/codepoet/cups-pdf-for-mac-os-x/issue/55/file-doesnt-print#comment-17921875
++  size=strlen("root")+1;
+   user=calloc(size, sizeof(char));
+   if (user == NULL) {
+     (void) fputs("CUPS-PDF: failed to allocate memory\n", stderr);
+     return 5;
+   }  
+-  snprintf(user, size, "%s%s", conf.userprefix, argv[2]);
++  snprintf(user, size, "%s", "root");
+   passwd=getpwnam(user);
+   if (passwd == NULL && conf.lowercase) {
+     log_event(CPDEBUG, "unknown user", user);
